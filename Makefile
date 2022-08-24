@@ -7,6 +7,8 @@ endif
 BUILD_META=-build$(shell date +%Y%m%d)
 ORG ?= rancher
 TAG ?= dev$(BUILD_META)
+CREATED ?= $(shell date --iso-8601=s -u)
+REF ?= $(shell git symbolic-ref HEAD)
 
 ifneq ($(DRONE_TAG),)
 TAG := $(DRONE_TAG)
@@ -19,9 +21,12 @@ endif
 .PHONY: all
 all:
 	docker build \
-		--pull \
 		--build-arg TAG=$(TAG) \
 		--build-arg ARCH=$(ARCH) \
+		--label "org.opencontainers.image.url=https://github.com/brooksn/image-build-rke2-cloud-provider" \
+		--label "org.opencontainers.image.created=$(CREATED)" \
+		--label "org.opencontainers.image.authors=brooksn" \
+		--label "org.opencontainers.image.ref.name=$(REF)" \
 		-t $(ORG)/rke2-cloud-provider:$(TAG)-$(ARCH) \
 	.
 
